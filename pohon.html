@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Pohon</title>
+</head>
+
+<body>
+    <canvas id="canvas" width="1400" height="700"></canvas>
+    <p>copyright: <a href="zonapemrograman.blogspot.com">zonapemrograman.blogspot.com</a></p>
+    <script>
+        const ctx = document.getElementById("canvas")
+        const canvas = ctx.getContext("2d")
+        // window
+        const xwmin = -3
+        const xwmax = 3
+        const ywmin = 0
+        const ywmax = 7
+        //viewport
+        const xvmin = 0
+        const xvmax = 600
+        const yvmin = 0
+        const yvmax = 700
+        // viewport 2
+        const xvmin2 = 700
+        const xvmax2 = 1300
+        const yvmin2 = 0
+        const yvmax2 = 700
+        // function window to viewport 2
+        function WV2(xw, yw) {
+            const xv = xvmin2 + Math.round((xw - xwmin) * (xvmax2 - xvmin2) / (xwmax - xwmin))
+            const yv = yvmax2 - Math.round((yw - ywmin) * (yvmax2 - yvmin2) / (ywmax - yvmin))
+            return { x: xv, y: yv }
+        }
+        function VW2(xv, yv) {
+            const xw = (xwmin + (xv - xvmin2) * (xwmax - xwmin) / (xvmax2 - xvmin2))
+            const yw = (ywmin + (yvmax2 - yv) * (ywmax - ywmin) / (yvmax2 - yvmin2))
+            return { x: xw, y: yw }
+        }
+        // function window to viewport
+        function WV(xw, yw) {
+            const xv = xvmin + Math.round((xw - xwmin) * (xvmax - xvmin) / (xwmax - xwmin))
+            const yv = yvmax - Math.round((yw - ywmin) * (yvmax - yvmin) / (ywmax - yvmin))
+            return { x: xv, y: yv }
+        }
+        function VW(xv, yv) {
+            const xw = (xwmin + (xv - xvmin) * (xwmax - xwmin) / (xvmax - xvmin))
+            const yw = (ywmin + (yvmax - yv) * (ywmax - ywmin) / (yvmax - yvmin))
+            return { x: xw, y: yw }
+        }
+        const drawFilledCircle = (centerX, centerY, radius, color) => {
+            canvas.beginPath();
+            canvas.strokeStyle = color;
+            canvas.arc(centerX, centerY, radius, 0, 2 * Math.PI, true);
+            canvas.stroke();
+            canvas.closePath()
+        }
+        function getPixel(i, j) {
+            let bm = canvas.getImageData(i, j, 1, 1);
+            if (bm.data[0] != 255)
+                return true;
+            else if (bm.data[1] != 255)
+                return true;
+            else if (bm.data[2] != 255)
+                return true;
+            return false;
+        }
+        function drawRect(width, height, color) {
+            canvas.beginPath()
+            canvas.fillStyle = color
+            canvas.fillRect(xvmin, yvmin, width, height)
+            canvas.closePath()
+        }
+        function drawRect2(width, height, color) {
+            canvas.beginPath()
+            canvas.fillStyle = color
+            canvas.fillRect(xvmin2, yvmin2, width, height)
+            canvas.closePath()
+        }
+        // Transformasi Affine
+        const alpa = 5; const beta = -50; const gama = 40
+        let a = [0], b = [0], c = [0], d = [0.37], e = [0], f = [0];
+        a.push(0.65 * Math.cos(alpa * Math.PI / 180))
+        b.push(-0.65 * Math.sin(alpa * Math.PI / 180))
+        c.push(0.65 * Math.sin(alpa * Math.PI / 180))
+        d.push(0.65 * Math.cos(alpa * Math.PI / 180))
+        e.push(0); f.push(2.5)
+        a.push(0.5 * Math.cos(beta * Math.PI / 180))
+        b.push(-0.5 * Math.sin(beta * Math.PI / 180))
+        c.push(0.5 * Math.sin(beta * Math.PI / 180))
+        d.push(0.5 * Math.cos(beta * Math.PI / 180))
+        e.push(0); f.push(1.5)
+        a.push(0.5 * Math.cos(gama * Math.PI / 180))
+        b.push(-0.5 * Math.sin(gama * Math.PI / 180))
+        c.push(0.5 * Math.sin(gama * Math.PI / 180))
+        d.push(0.5 * Math.cos(gama * Math.PI / 180))
+        e.push(0); f.push(1.7)
+        drawRect((xvmax - xvmin), (yvmax - yvmin), "rgba(255, 255, 255, 255)")
+        drawRect2((xvmax2 - xvmin2), (yvmax2 - yvmin2), "rgba(255, 255, 255, 255)")
+        drawFilledCircle((xvmax - xvmin) / 2, (yvmax - yvmin) / 2, (300 - 10), "rgba(0, 0, 0, 255)")
+        canvas.stroke()
+        async function pohon() {
+            let numit = 8; let k = 0
+            while (k <= numit) {
+                await new Promise((resolve, reject) => setTimeout(resolve, 0))
+                if (k % 2 == 0) {
+                    console.log("iterasi ke- " + k + " di k % 2 == 0")
+                    for (let i = xvmin + 2; i < xvmax - 2; i++) {
+                        for (let j = yvmin + 2; j < yvmax - 2; j++) {
+                            if (getPixel(i, j)) {
+                                let p = VW(i, j)
+                                xb = a[0] * p.x + b[0] * p.y + e[0]
+                                yb = c[0] * p.x + d[0] * p.y + f[0]
+                                let q = WV2(xb, yb)
+                                drawFilledCircle(q.x, q.y, 1, "rgb(128, 128, 0)")
+                                xb = a[1] * p.x + b[1] * p.y + e[1]
+                                yb = c[1] * p.x + d[1] * p.y + f[1]
+                                q = WV2(xb, yb)
+                                drawFilledCircle(q.x, q.y, 1, "green")
+                                xb = a[2] * p.x + b[2] * p.y + e[2]
+                                yb = c[2] * p.x + d[2] * p.y + f[2]
+                                q = WV2(xb, yb)
+                                drawFilledCircle(q.x, q.y, 1, "green")
+                                xb = a[3] * p.x + b[3] * p.y + e[3]
+                                yb = c[3] * p.x + d[3] * p.y + f[3]
+                                q = WV2(xb, yb)
+                                drawFilledCircle(q.x, q.y, 1, "green")
+                            }
+                        }
+                    }
+                    drawRect((xvmax - xvmin), (yvmax - yvmin), "rgba(255, 255, 255, 255)")
+                }
+                else {
+                    console.log("iterasi ke- " + k + " di else")
+                    for (let i = xvmin2 + 2; i < xvmax2 - 2; i++) {
+                        for (let j = yvmin2 + 2; j < yvmax2 - 2; j++) {
+                            if (getPixel(i, j)) {
+                                let p = VW2(i, j)
+                                xb = a[0] * p.x + b[0] * p.y + e[0]
+                                yb = c[0] * p.x + d[0] * p.y + f[0]
+                                let q = WV(xb, yb)
+                                drawFilledCircle(q.x, q.y, 1, "rgb(128, 128, 0)")
+                                xb = a[1] * p.x + b[1] * p.y + e[1]
+                                yb = c[1] * p.x + d[1] * p.y + f[1]
+                                q = WV(xb, yb)
+                                drawFilledCircle(q.x, q.y, 1, "green")
+                                xb = a[2] * p.x + b[2] * p.y + e[2]
+                                yb = c[2] * p.x + d[2] * p.y + f[2]
+                                q = WV(xb, yb)
+                                drawFilledCircle(q.x, q.y, 1, "green")
+                                xb = a[3] * p.x + b[3] * p.y + e[3]
+                                yb = c[3] * p.x + d[3] * p.y + f[3]
+                                q = WV(xb, yb)
+                                drawFilledCircle(q.x, q.y, 1, "green")
+                            }
+                        }
+                    }
+                    drawRect2((xvmax2 - xvmin2), (yvmax2 - yvmin2), "rgba(255, 255, 255, 255)")
+                }
+                k++
+            }
+            console.log("finish")
+        }
+        pohon()
+    </script>
+</body>
+
+</html>
