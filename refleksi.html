@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Grafkom Refleksi</title>
+</head>
+
+<body>
+    <canvas id="viewport" height="600" width="600"
+        style="border: 1px solid #000000; background: #e9ebee; float: left; margin-right: 10px"></canvas>
+    <h3 style="margin-top: 2px">Refleksi</h3>
+    <h3>Copyright: <a href="https://zonapemrograman.blogspot.com">Zona Pemrograman</a></h3>
+    Tiga titik segitiga <span id="letaksegitiga"></span> <br>
+    Mouse position <span id="mouseposition"></span> <br>
+    Clicked p1 <span id="mouseclicked1"></span> <br>
+    Clciked p2 <span id="mouseclicked2"></span><br><br>
+    inputan click<br>
+    <script>
+        let canvas = document.getElementById('viewport');
+        let ctx = canvas.getContext('2d');
+
+        let mousePosition = document.getElementById('mouseposition');
+        let mouseclicked1 = document.getElementById('mouseclicked1');
+        let mouseclicked2 = document.getElementById('mouseclicked2');
+        let letaksegitiga = document.getElementById('letaksegitiga');
+
+        // addeventlistener
+        canvas.onmousedown = clicklistener;
+        canvas.onmousemove = movelistener;
+
+        var toStart = false;
+        var garis1, garis2;
+
+        // letak segitiga awal
+        var sg1 = new point(200, 200);
+        var sg2 = new point(200, 270);
+        var sg3 = new point(270, 270);
+
+        // menggambar segitiga
+        segitiga(sg1, sg2, sg3);
+
+        function point(x, y) {
+            this.x = x;
+            this.y = y;
+        }
+
+        // event move
+        function movelistener() {
+            let rect = canvas.getBoundingClientRect();
+            let x = event.clientX - Math.round(rect.left);
+            let y = event.clientY - Math.round(rect.top);
+            mousePosition.innerHTML = "(" + x + ", " + y + ")";
+        }
+
+        // event click
+        function clicklistener() {
+            toStart = !toStart;
+            let rect = canvas.getBoundingClientRect();
+            let x = event.clientX - Math.round(rect.left);
+            let y = event.clientY - Math.round(rect.top);
+            if (toStart) {
+                garis1 = new point(x, y);
+                mouseclicked1.innerHTML = "(" + x + ", " + y + ")";
+            } else {
+                garis2 = new point(x, y);
+                mouseclicked2.innerHTML = "(" + x + ", " + y + ")";
+                garis(garis1, garis2);
+            }
+        }
+
+        // menggambar segitiga
+        function segitiga(sg1, sg2, sg3) {
+            ctx.beginPath();
+            ctx.moveTo(sg1.x, sg1.y);
+            ctx.lineTo(sg2.x, sg2.y);
+            ctx.lineTo(sg3.x, sg3.y);
+            ctx.fillStyle = getRndColor();
+            ctx.fill();
+            ctx.strokeStyle = "rgba(0, 0, 0, 0)";
+            ctx.stroke();
+            ctx.closePath();
+            letaksegitiga.innerHTML = "(" + sg1.x + ", " + sg1.y + ")" + ", (" + sg2.x + ", " + sg2.y + ")" + ", (" + sg3.x + ", " + sg3.y + ")";
+        }
+
+        // menggambar garis
+        function garis(garis1, garis2) {
+            ctx.beginPath();
+            ctx.moveTo(garis1.x, garis1.y);
+            ctx.lineTo(garis2.x, garis2.y);
+            ctx.strokeStyle = "rgba(0, 0, 0, 1)";
+            ctx.stroke();
+            ctx.closePath();
+            transformasi(garis1, garis2);
+        }
+
+        // Rumus transformasi
+        function transformasi(garis1, garis2) {
+            if (garis1.x == garis2.x) {
+                sg1.x = 2 * (garis1.x - sg1.x) + sg1.x;
+                sg2.x = 2 * (garis1.x - sg2.x) + sg2.x;
+                sg3.x = 2 * (garis1.x - sg3.x) + sg3.x;
+            } else {
+                let m = (garis1.y - garis2.y) / (garis1.x - garis2.x);
+                let c = garis1.y - m * garis1.x;
+                let sudut = Math.atan(m);
+                sg1 = new point(Math.round(Math.cos(2 * sudut) * sg1.x + Math.sin(2 * sudut) * (sg1.y - c)),
+                    Math.round(Math.sin(2 * sudut) * sg1.x - Math.cos(2 * sudut) * (sg1.y - c) + c));
+                sg2 = new point(Math.round(Math.cos(2 * sudut) * sg2.x + Math.sin(2 * sudut) * (sg2.y - c)),
+                    Math.round(Math.sin(2 * sudut) * sg2.x - Math.cos(2 * sudut) * (sg2.y - c) + c));
+                sg3 = new point(Math.round(Math.cos(2 * sudut) * sg3.x + Math.sin(2 * sudut) * (sg3.y - c)),
+                    Math.round(Math.sin(2 * sudut) * sg3.x - Math.cos(2 * sudut) * (sg3.y - c) + c));
+            }
+            segitiga(sg1, sg2, sg3);
+        }
+
+        // Random color
+        function getRndColor() {
+            var r = 255 * Math.random() | 0;
+            var g = 255 * Math.random() | 0;
+            var b = 255 * Math.random() | 0;
+            return 'rgb(' + r + ',' + g + ',' + b + ')';
+        }
+    </script>
+</body>
+
+</html>

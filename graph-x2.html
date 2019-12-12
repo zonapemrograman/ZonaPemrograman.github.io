@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Graph x^2</title>
+    <style>
+        body {
+            background: #e9ebee;
+            text-align: center;
+        }
+
+        canvas {
+            border: 1px solid #000000;
+            padding: 0;
+            margin: auto;
+            display: block;
+        }
+    </style>
+    <script>
+        let x_vmin = 0;
+        let x_vmax = 300;
+        let y_vmin = 0;
+        let y_vmax = 300;
+
+        let x_wmin = -3;
+        let y_wmin = -2;
+        let x_wmax = 3;
+        let y_wmax = 6;
+    </script>
+</head>
+
+<body>
+    <h2>Graph y = x^2</h2>
+    <h3>Copyright: <a href="https://zonapemrograman.blogspot.com">Zona Pemrograman</a></h3>
+    <canvas id="bingkai"></canvas>
+    <script>
+        let canvas = document.getElementById('bingkai');
+        canvas.width = y_vmax;
+        canvas.height = x_vmax;
+        let ctx = canvas.getContext('2d');
+
+        sumbuX();
+        sumbuY();
+        kurva();
+
+        //F Fungsi Merubah Xv grafis komputer
+        function toViewportX(Xw) {
+            var Sx = (Xw - x_wmin) / (x_wmax - x_wmin);
+            var Xv = x_vmin + Sx * (x_vmax - x_vmin);
+            return parseInt(Xv);
+        }
+
+        function toViewportY(Yw) {
+            var Sy = (Yw - y_wmin) / (y_wmax - y_wmin);
+            var Yv = y_vmax - Sy * (y_vmax - y_vmin);
+            return parseInt(Yv);
+        }
+
+        function sumbuX() {
+            ctx.moveTo(toViewportX(-3), toViewportY(0));
+            ctx.lineTo(toViewportX(3), toViewportY(0));
+        }
+
+        function sumbuY() {
+            ctx.moveTo(toViewportX(0), toViewportY(6));
+            ctx.lineTo(toViewportX(0), toViewportY(-2));
+        }
+
+        // Fungsi menggambar kurva
+        async function kurva() {
+            ctx.moveTo(toViewportX(-2), toViewportY(4));
+            var x = -2;
+            while (x <= 2) {
+                var plotX = x;
+                var plotY = x * x;
+                ctx.lineTo(toViewportX(plotX), toViewportY(plotY));
+                ctx.stroke();
+                x += 0.001;
+                await new Promise(resolve => setTimeout(resolve, 8));
+            }
+        }
+    </script>
+
+    <h2>Keterangan: </h2><br>
+    <p>Pojok kiri bawah koordinat: <span id="getPojokKiriBawah"></span>
+    </p>
+    <p>Pojok kanan atas koordinat: <span id="getPojokKananAtas"></span>
+    </p>
+    <p>Lebar viewport: <span id="getLebar"></span>
+    </p>
+    <p>Tinggi viewport: <span id="getTinggi"></span>
+    </p>
+
+
+    <script>
+        document.getElementById('getPojokKiriBawah').innerHTML = "(" + x_wmin + ", " + y_wmin + ")";
+        document.getElementById('getPojokKananAtas').innerHTML = "(" + x_wmax + ", " + y_wmax + ")";
+        document.getElementById('getLebar').innerHTML = x_vmax;
+        document.getElementById('getTinggi').innerHTML = y_vmax;
+    </script>
+</body>
+
+</html>
